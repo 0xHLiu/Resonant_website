@@ -39,7 +39,7 @@ export default function UseCasesSection() {
   ]
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -48,8 +48,8 @@ export default function UseCasesSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">Use Cases</h2>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">Use Cases</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Discover how our text-to-speech technology can transform your projects
           </p>
         </motion.div>
@@ -63,13 +63,13 @@ export default function UseCasesSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="p-6 bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/15 transition-all duration-300 h-full group">
+              <Card className="p-6 bg-white border-gray-200 shadow-sm h-full group">
                 <div className="space-y-4">
                   <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                     <useCase.icon className="w-6 h-6 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold text-white">{useCase.title}</h3>
-                  <p className="text-white/70">{useCase.description}</p>
+                  <h3 className="text-xl font-semibold text-gray-900">{useCase.title}</h3>
+                  <p className="text-gray-600">{useCase.description}</p>
                 </div>
               </Card>
             </motion.div>

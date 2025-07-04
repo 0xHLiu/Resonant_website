@@ -57,7 +57,7 @@ export default function PricingSection() {
   ]
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -66,8 +66,8 @@ export default function PricingSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">Simple Pricing</h2>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">Simple Pricing</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Choose the perfect plan for your needs. All plans include our core features.
           </p>
         </motion.div>
@@ -93,20 +93,18 @@ export default function PricingSection() {
 
               <Card
                 className={`p-8 h-full ${
-                  plan.popular
-                    ? "bg-white/15 border-blue-500/50 shadow-lg shadow-blue-500/20"
-                    : "bg-white/10 border-white/20"
+                  plan.popular ? "bg-white border-blue-200 shadow-lg" : "bg-gray-50 border-gray-200"
                 } backdrop-blur-md hover:bg-white/20 transition-all duration-300`}
               >
                 <div className="space-y-6">
                   <div>
-                    <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
-                    <p className="text-white/70 mt-2">{plan.description}</p>
+                    <h3 className="text-2xl font-bold text-gray-900">{plan.name}</h3>
+                    <p className="text-gray-600 mt-2">{plan.description}</p>
                   </div>
 
                   <div className="flex items-baseline">
-                    <span className="text-4xl font-bold text-white">{plan.price}</span>
-                    <span className="text-white/60 ml-1">{plan.period}</span>
+                    <span className="text-4xl font-bold text-gray-900">{plan.price}</span>
+                    <span className="text-gray-500 ml-1">{plan.period}</span>
                   </div>
 
                   <Button
@@ -123,7 +121,7 @@ export default function PricingSection() {
                     {plan.features.map((feature, i) => (
                       <div key={i} className="flex items-center gap-3">
                         <Check className="w-5 h-5 text-green-400 flex-shrink-0" />
-                        <span className="text-white/80">{feature}</span>
+                        <span className="text-gray-600">{feature}</span>
                       </div>
                     ))}
                   </div>

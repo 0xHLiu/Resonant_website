@@ -38,7 +38,7 @@ export default function VoiceDemoSection() {
   }
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-white">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -47,8 +47,8 @@ export default function VoiceDemoSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">Experience Our Voices</h2>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">Experience Our Voices</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Listen to our AI-generated voices and discover the perfect tone for your project
           </p>
         </motion.div>
@@ -62,12 +62,12 @@ export default function VoiceDemoSection() {
               transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
-              <Card className="p-6 bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/15 transition-all duration-300">
+              <Card className="p-6 bg-gray-50 border-gray-200 hover:bg-white/15 transition-all duration-300">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-xl font-semibold text-white">{voice.name}</h3>
-                      <p className="text-white/60 text-sm">{voice.accent}</p>
+                      <h3 className="text-xl font-semibold text-gray-900">{voice.name}</h3>
+                      <p className="text-gray-500 text-sm">{voice.accent}</p>
                     </div>
                     <Button
                       size="sm"
@@ -78,7 +78,7 @@ export default function VoiceDemoSection() {
                     </Button>
                   </div>
 
-                  <p className="text-white/80 text-sm">{voice.description}</p>
+                  <p className="text-gray-600 text-sm">{voice.description}</p>
 
                   {/* Waveform visualization */}
                   <div className="flex items-center gap-1 h-12">
@@ -103,7 +103,7 @@ export default function VoiceDemoSection() {
                     ))}
                   </div>
 
-                  <div className="flex items-center gap-2 text-white/60 text-sm">
+                  <div className="flex items-center gap-2 text-gray-500 text-sm">
                     <Volume2 className="w-4 h-4" />
                     <span>Sample: "Welcome to the future of voice technology"</span>
                   </div>

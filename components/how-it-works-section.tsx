@@ -24,7 +24,7 @@ export default function HowItWorksSection() {
   ]
 
   return (
-    <section className="py-24 px-4 sm:px-6 lg:px-8">
+    <section className="py-24 px-4 sm:px-6 lg:px-8 bg-gray-50">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -33,8 +33,8 @@ export default function HowItWorksSection() {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl sm:text-5xl font-bold text-white mb-6">How It Works</h2>
-          <p className="text-xl text-white/80 max-w-3xl mx-auto">
+          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">How It Works</h2>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Transform your text into natural-sounding speech in just three simple steps
           </p>
         </motion.div>
@@ -49,14 +49,14 @@ export default function HowItWorksSection() {
               viewport={{ once: true }}
               className="relative"
             >
-              <Card className="p-8 bg-white/10 backdrop-blur-md border-white/20 hover:bg-white/15 transition-all duration-300 text-center">
+              <Card className="p-8 bg-white border-gray-200 shadow-sm hover:bg-white/15 transition-all duration-300 text-center">
                 <div className="space-y-4">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto">
                     <step.icon className="w-8 h-8 text-white" />
                   </div>
                   <div className="text-2xl font-bold text-blue-400">{String(index + 1).padStart(2, "0")}</div>
-                  <h3 className="text-xl font-semibold text-white">{step.title}</h3>
-                  <p className="text-white/70">{step.description}</p>
+                  <h3 className="text-xl font-semibold text-gray-900">{step.title}</h3>
+                  <p className="text-gray-600">{step.description}</p>
                 </div>
               </Card>
 

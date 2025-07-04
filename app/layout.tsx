@@ -1,16 +1,17 @@
-import type { Metadata } from 'next'
-import './globals.css'
+import type { Metadata } from "next"
+import type { ReactNode } from "react"
+import "./globals.css"
 
 export const metadata: Metadata = {
-  title: 'v0 App',
-  description: 'Created with v0',
-  generator: 'v0.dev',
+  title: "Resonant - AI Voice Generation",
+  description: "Transform text into natural speech with Resonant's advanced AI voice technology",
+  generator: "v0.dev",
 }
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: ReactNode
 }>) {
   return (
     <html lang="en">
