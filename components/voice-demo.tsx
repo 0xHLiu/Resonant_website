@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card } from "@/components/ui/card"
@@ -15,6 +15,41 @@ export default function VoiceDemo() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [hasGenerated, setHasGenerated] = useState(false)
 
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [duration, setDuration] = useState("0:00")
+  const [currentTime, setCurrentTime] = useState("0:00")
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const handleLoadedMetadata = () => {
+      const mins = Math.floor(audio.duration / 60)
+      const secs = Math.floor(audio.duration % 60)
+      setDuration(`${mins}:${secs.toString().padStart(2, "0")}`)
+    }
+
+    const handleTimeUpdate = () => {
+      const mins = Math.floor(audio.currentTime / 60)
+      const secs = Math.floor(audio.currentTime % 60)
+      setCurrentTime(`${mins}:${secs.toString().padStart(2, "0")}`)
+    }
+
+    const handleEnded = () => {
+      setIsPlaying(false)
+    }
+
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata)
+    audio.addEventListener("timeupdate", handleTimeUpdate)
+    audio.addEventListener("ended", handleEnded)
+
+    return () => {
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
+      audio.removeEventListener("timeupdate", handleTimeUpdate)
+      audio.removeEventListener("ended", handleEnded)
+    }
+  }, [hasGenerated])
+
   const handleGenerate = async () => {
     setIsGenerating(true)
     // Simulate API call
@@ -24,13 +59,24 @@ export default function VoiceDemo() {
   }
 
   const handlePlayPause = () => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    if (isPlaying) {
+      audio.pause()
+    } else {
+      audio.play()
+    }
     setIsPlaying(!isPlaying)
-    // In a real app, this would control actual audio playback
   }
 
   const handleDownload = () => {
-    // In a real app, this would download the generated audio file
-    console.log("Downloading audio file...")
+    const link = document.createElement("a")
+    link.href = "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Sarah-VuCdmOVYNsefRiTHe44bdXsdom46xs.mp3"
+    link.download = "sarah-voice-sample.mp3"
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   return (
@@ -78,9 +124,16 @@ export default function VoiceDemo() {
                 className="space-y-4"
               >
                 <div className="bg-gray-50 rounded-xl p-4">
+                  <audio
+                    ref={audioRef}
+                    src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Sarah-VuCdmOVYNsefRiTHe44bdXsdom46xs.mp3"
+                    preload="metadata"
+                    className="hidden"
+                  />
+
                   <div className="flex items-center justify-between mb-3">
                     <span className="text-sm font-medium text-gray-700">Generated Audio</span>
-                    <span className="text-xs text-gray-500">0:23</span>
+                    <span className="text-xs text-gray-500">{duration}</span>
                   </div>
 
                   {/* Waveform visualization */}
@@ -107,14 +160,17 @@ export default function VoiceDemo() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <Button
-                      onClick={handlePlayPause}
-                      variant="outline"
-                      size="sm"
-                      className="rounded-full bg-transparent"
-                    >
-                      {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        onClick={handlePlayPause}
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full bg-transparent"
+                      >
+                        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                      </Button>
+                      <span className="text-xs text-gray-500">{currentTime}</span>
+                    </div>
 
                     <Button
                       onClick={handleDownload}
@@ -136,7 +192,7 @@ export default function VoiceDemo() {
             <div className="relative mb-4">
               <div className="w-32 h-32 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-lg">
                 <img
-                  src="/placeholder.svg?height=128&width=128"
+                  src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Sarah-Ny612XHVaQsLHh959bRzk5E1TmndPU.jpeg"
                   alt="Sarah - Voice Model"
                   className="w-full h-full object-cover"
                 />
