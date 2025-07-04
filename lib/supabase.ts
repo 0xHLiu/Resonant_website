@@ -11,34 +11,34 @@ export type Database = {
       users: {
         Row: {
           id: string
+          name: string
           email: string
-          first_name: string
-          last_name: string
-          account_type: "user" | "talent"
-          agree_to_terms: boolean
-          agree_to_marketing: boolean
+          password_hash: string
+          account_type: "regular" | "voice_talent"
+          agreed_to_terms: boolean
+          agreed_to_marketing: boolean
           created_at: string
           updated_at: string
         }
         Insert: {
           id?: string
+          name: string
           email: string
-          first_name: string
-          last_name: string
-          account_type: "user" | "talent"
-          agree_to_terms: boolean
-          agree_to_marketing: boolean
+          password_hash: string
+          account_type: "regular" | "voice_talent"
+          agreed_to_terms: boolean
+          agreed_to_marketing: boolean
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
+          name?: string
           email?: string
-          first_name?: string
-          last_name?: string
-          account_type?: "user" | "talent"
-          agree_to_terms?: boolean
-          agree_to_marketing?: boolean
+          password_hash?: string
+          account_type?: "regular" | "voice_talent"
+          agreed_to_terms?: boolean
+          agreed_to_marketing?: boolean
           created_at?: string
           updated_at?: string
         }

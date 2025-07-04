@@ -2,67 +2,53 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
-import { ArrowLeft, Mail, Lock, User, Eye, EyeOff, CheckCircle, Loader2, AlertCircle } from "lucide-react"
-import Navigation from "@/components/navigation"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Eye, EyeOff, ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
-export default function SignUpPage() {
+export default function SignupPage() {
+  const searchParams = useSearchParams()
   const router = useRouter()
+  const [activeTab, setActiveTab] = useState("regular")
   const [showPassword, setShowPassword] = useState(false)
-  const [accountType, setAccountType] = useState<"user" | "talent">("user")
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState(false)
 
+  // Form state
   const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
     password: "",
-    confirmPassword: "",
-    agreeToTerms: false,
-    agreeToMarketing: false,
+    agreedToTerms: false,
+    agreedToMarketing: false,
   })
 
-  const benefits = {
-    user: [
-      "Access to 120+ AI voices",
-      "Generate up to 10,000 characters/month free",
-      "High-quality audio downloads",
-      "Commercial usage rights",
-      "24/7 customer support",
-    ],
-    talent: [
-      "Earn 90% revenue share",
-      "Global voice marketplace",
-      "Automated payments",
-      "Voice protection & licensing",
-      "Real-time earnings dashboard",
-    ],
-  }
+  useEffect(() => {
+    const type = searchParams.get("type")
+    if (type === "voice-talent") {
+      setActiveTab("voice-talent")
+    }
+  }, [searchParams])
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }))
-    // Clear error when user starts typing
-    if (error) setError("")
+    setError("") // Clear error when user starts typing
   }
 
   const validateForm = () => {
-    if (!formData.firstName.trim()) return "First name is required"
-    if (!formData.lastName.trim()) return "Last name is required"
+    if (!formData.name.trim()) return "Name is required"
     if (!formData.email.trim()) return "Email is required"
     if (!formData.password) return "Password is required"
-    if (!formData.confirmPassword) return "Please confirm your password"
-    if (formData.password !== formData.confirmPassword) return "Passwords do not match"
-    if (formData.password.length < 8) return "Password must be at least 8 characters long"
-    if (!formData.agreeToTerms) return "You must agree to the terms of service"
+    if (formData.password.length < 8) return "Password must be at least 8 characters"
+    if (!formData.agreedToTerms) return "You must agree to the Terms of Service"
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(formData.email)) return "Please enter a valid email address"
@@ -90,7 +76,7 @@ export default function SignUpPage() {
         },
         body: JSON.stringify({
           ...formData,
-          accountType,
+          accountType: activeTab === "voice-talent" ? "voice_talent" : "regular",
         }),
       })
 
@@ -104,11 +90,7 @@ export default function SignUpPage() {
 
       // Redirect after success
       setTimeout(() => {
-        if (accountType === "talent") {
-          router.push("/voice-talent/dashboard")
-        } else {
-          router.push("/dashboard")
-        }
+        router.push("/")
       }, 2000)
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unexpected error occurred")
@@ -119,324 +101,273 @@ export default function SignUpPage() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className="text-center"
-        >
-          <Card className="p-8 bg-white shadow-lg max-w-md mx-auto">
-            <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mx-auto mb-4">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6 text-center">
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Account Created!</h2>
-            <p className="text-gray-600 mb-6">
-              {accountType === "talent"
-                ? "Welcome to the Resonant voice talent community! You'll be redirected to your dashboard shortly."
-                : "Welcome to Resonant! You'll be redirected to your dashboard shortly."}
+            <p className="text-gray-600 mb-4">
+              Welcome to Resonant! Your {activeTab === "voice-talent" ? "voice talent" : "regular"} account has been
+              created successfully.
             </p>
-            <div className="flex items-center justify-center">
-              <Loader2 className="w-5 h-5 animate-spin text-blue-600" />
-              <span className="ml-2 text-sm text-gray-600">Redirecting...</span>
-            </div>
-          </Card>
-        </motion.div>
+            <p className="text-sm text-gray-500">Redirecting you to the homepage...</p>
+          </CardContent>
+        </Card>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Navigation />
-
-      <div className="pt-20 pb-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
-          {/* Back Button */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mb-8"
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="mb-6">
+          <Link
+            href="/"
+            className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 transition-colors"
           >
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back to home</span>
-            </Link>
-          </motion.div>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Home
+          </Link>
+        </div>
 
-          <div className="grid lg:grid-cols-2 gap-12 items-start">
-            {/* Left Side - Form */}
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
-              <Card className="p-8 bg-white shadow-lg">
-                <div className="mb-8">
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">Create your account</h1>
-                  <p className="text-gray-600">Join thousands of creators using Resonant for AI voice generation</p>
+        <Card>
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl font-bold">Create Your Account</CardTitle>
+            <CardDescription>Join Resonant and start creating amazing AI voices</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="regular">Use AI Voices</TabsTrigger>
+                <TabsTrigger value="voice-talent">License My Voice</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="regular" className="space-y-4 mt-6">
+                <div className="text-center mb-4">
+                  <h3 className="font-semibold text-lg">Regular Account</h3>
+                  <p className="text-sm text-gray-600">Access our library of AI voices for your projects</p>
                 </div>
 
-                {/* Error Message */}
-                {error && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2"
-                  >
-                    <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
-                    <span className="text-red-700 text-sm">{error}</span>
-                  </motion.div>
-                )}
-
-                {/* Account Type Selection */}
-                <div className="mb-8">
-                  <label className="block text-sm font-medium text-gray-700 mb-4">I want to:</label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setAccountType("user")}
-                      className={`p-4 rounded-lg border-2 text-left transition-all ${
-                        accountType === "user" ? "border-blue-500 bg-blue-50" : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className="font-semibold text-gray-900">Use AI voices</div>
-                      <div className="text-sm text-gray-600">Create content with our voice library</div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setAccountType("talent")}
-                      className={`p-4 rounded-lg border-2 text-left transition-all ${
-                        accountType === "talent"
-                          ? "border-green-500 bg-green-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className="font-semibold text-gray-900">License my voice</div>
-                      <div className="text-sm text-gray-600">Earn money from voice talent</div>
-                    </button>
-                  </div>
-                </div>
-
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Name Fields */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">First Name</label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        <Input
-                          type="text"
-                          value={formData.firstName}
-                          onChange={(e) => handleInputChange("firstName", e.target.value)}
-                          className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          placeholder="John"
-                          required
-                          disabled={isLoading}
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
-                      <div className="relative">
-                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                        <Input
-                          type="text"
-                          value={formData.lastName}
-                          onChange={(e) => handleInputChange("lastName", e.target.value)}
-                          className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                          placeholder="Doe"
-                          required
-                          disabled={isLoading}
-                        />
-                      </div>
-                    </div>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full Name</Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange("name", e.target.value)}
+                      placeholder="Enter your full name"
+                      disabled={isLoading}
+                    />
                   </div>
 
-                  {/* Email */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      placeholder="Enter your email"
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                       <Input
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => handleInputChange("email", e.target.value)}
-                        className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                        placeholder="john@example.com"
-                        required
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Password */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <Input
+                        id="password"
                         type={showPassword ? "text" : "password"}
                         value={formData.password}
                         onChange={(e) => handleInputChange("password", e.target.value)}
-                        className="pl-10 pr-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                        placeholder="Create a strong password"
-                        required
+                        placeholder="Create a password"
                         disabled={isLoading}
                       />
-                      <button
+                      <Button
                         type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                         disabled={isLoading}
                       >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                      </button>
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
                     </div>
+                    <p className="text-xs text-gray-500">Must be at least 8 characters</p>
                   </div>
 
-                  {/* Confirm Password */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                      <Input
-                        type={showPassword ? "text" : "password"}
-                        value={formData.confirmPassword}
-                        onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-                        className="pl-10 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
-                        placeholder="Confirm your password"
-                        required
-                        disabled={isLoading}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Checkboxes */}
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
                       <Checkbox
                         id="terms"
-                        checked={formData.agreeToTerms}
-                        onCheckedChange={(checked) => handleInputChange("agreeToTerms", checked as boolean)}
-                        className="mt-1"
+                        checked={formData.agreedToTerms}
+                        onCheckedChange={(checked) => handleInputChange("agreedToTerms", checked as boolean)}
                         disabled={isLoading}
                       />
-                      <label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed">
+                      <Label htmlFor="terms" className="text-sm">
                         I agree to the{" "}
-                        <a href="#" className="text-blue-600 hover:text-blue-700 underline">
+                        <Link href="/terms" className="text-blue-600 hover:underline">
                           Terms of Service
-                        </a>{" "}
+                        </Link>{" "}
                         and{" "}
-                        <a href="#" className="text-blue-600 hover:text-blue-700 underline">
+                        <Link href="/privacy" className="text-blue-600 hover:underline">
                           Privacy Policy
-                        </a>
-                      </label>
+                        </Link>
+                      </Label>
                     </div>
-                    <div className="flex items-start gap-3">
+
+                    <div className="flex items-center space-x-2">
                       <Checkbox
                         id="marketing"
-                        checked={formData.agreeToMarketing}
-                        onCheckedChange={(checked) => handleInputChange("agreeToMarketing", checked as boolean)}
-                        className="mt-1"
+                        checked={formData.agreedToMarketing}
+                        onCheckedChange={(checked) => handleInputChange("agreedToMarketing", checked as boolean)}
                         disabled={isLoading}
                       />
-                      <label htmlFor="marketing" className="text-sm text-gray-600 leading-relaxed">
-                        I'd like to receive product updates and marketing communications
-                      </label>
+                      <Label htmlFor="marketing" className="text-sm">
+                        I'd like to receive updates and marketing communications
+                      </Label>
                     </div>
                   </div>
 
-                  {/* Submit Button */}
-                  <Button
-                    type="submit"
-                    disabled={!formData.agreeToTerms || isLoading}
-                    className={`w-full py-3 rounded-full font-semibold text-lg ${
-                      accountType === "talent" ? "bg-green-600 hover:bg-green-700" : "bg-blue-600 hover:bg-blue-700"
-                    } text-white disabled:opacity-50`}
-                  >
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                      <p className="text-sm text-red-600">{error}</p>
+                    </div>
+                  )}
+
+                  <Button type="submit" className="w-full" disabled={isLoading}>
                     {isLoading ? (
                       <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Creating account...
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Account...
                       </>
-                    ) : accountType === "talent" ? (
-                      "Create Voice Talent Account"
                     ) : (
                       "Create Account"
                     )}
                   </Button>
-
-                  {/* Sign In Link */}
-                  <div className="text-center">
-                    <p className="text-gray-600">
-                      Already have an account?{" "}
-                      <a href="#" className="text-blue-600 hover:text-blue-700 font-medium">
-                        Sign in
-                      </a>
-                    </p>
-                  </div>
                 </form>
-              </Card>
-            </motion.div>
+              </TabsContent>
 
-            {/* Right Side - Benefits */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="lg:sticky lg:top-24"
-            >
-              <Card className="p-8 bg-white shadow-lg">
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">
-                    {accountType === "talent" ? "Voice Talent Benefits" : "Creator Benefits"}
-                  </h2>
-                  <p className="text-gray-600">
-                    {accountType === "talent"
-                      ? "Start earning from your voice today"
-                      : "Everything you need to create amazing content"}
-                  </p>
+              <TabsContent value="voice-talent" className="space-y-4 mt-6">
+                <div className="text-center mb-4">
+                  <h3 className="font-semibold text-lg">Voice Talent Account</h3>
+                  <p className="text-sm text-gray-600">License your voice and earn from AI voice generation</p>
                 </div>
 
-                <div className="space-y-4">
-                  {benefits[accountType].map((benefit, index) => (
-                    <motion.div
-                      key={benefit}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-                      className="flex items-center gap-3"
-                    >
-                      <CheckCircle
-                        className={`w-5 h-5 ${accountType === "talent" ? "text-green-500" : "text-blue-500"} flex-shrink-0`}
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name-talent">Full Name</Label>
+                    <Input
+                      id="name-talent"
+                      type="text"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange("name", e.target.value)}
+                      placeholder="Enter your full name"
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email-talent">Email</Label>
+                    <Input
+                      id="email-talent"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange("email", e.target.value)}
+                      placeholder="Enter your email"
+                      disabled={isLoading}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password-talent">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="password-talent"
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={(e) => handleInputChange("password", e.target.value)}
+                        placeholder="Create a password"
+                        disabled={isLoading}
                       />
-                      <span className="text-gray-700">{benefit}</span>
-                    </motion.div>
-                  ))}
-                </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                        disabled={isLoading}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500">Must be at least 8 characters</p>
+                  </div>
 
-                {accountType === "talent" && (
-                  <div className="mt-8 p-4 bg-green-50 rounded-lg">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-green-600 mb-1">90%</div>
-                      <div className="text-sm text-green-700">Revenue share for voice talents</div>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="terms-talent"
+                        checked={formData.agreedToTerms}
+                        onCheckedChange={(checked) => handleInputChange("agreedToTerms", checked as boolean)}
+                        disabled={isLoading}
+                      />
+                      <Label htmlFor="terms-talent" className="text-sm">
+                        I agree to the{" "}
+                        <Link href="/terms" className="text-blue-600 hover:underline">
+                          Terms of Service
+                        </Link>
+                        ,{" "}
+                        <Link href="/privacy" className="text-blue-600 hover:underline">
+                          Privacy Policy
+                        </Link>
+                        , and{" "}
+                        <Link href="/voice-talent-agreement" className="text-blue-600 hover:underline">
+                          Voice Talent Agreement
+                        </Link>
+                      </Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="marketing-talent"
+                        checked={formData.agreedToMarketing}
+                        onCheckedChange={(checked) => handleInputChange("agreedToMarketing", checked as boolean)}
+                        disabled={isLoading}
+                      />
+                      <Label htmlFor="marketing-talent" className="text-sm">
+                        I'd like to receive updates and marketing communications
+                      </Label>
                     </div>
                   </div>
-                )}
 
-                {accountType === "user" && (
-                  <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-                    <div className="text-center">
-                      <div className="text-3xl font-bold text-blue-600 mb-1">10,000</div>
-                      <div className="text-sm text-blue-700">Free characters per month</div>
+                  {error && (
+                    <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                      <p className="text-sm text-red-600">{error}</p>
                     </div>
-                  </div>
-                )}
-              </Card>
-            </motion.div>
-          </div>
-        </div>
+                  )}
+
+                  <Button type="submit" className="w-full" disabled={isLoading}>
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Creating Voice Talent Account...
+                      </>
+                    ) : (
+                      "Create Voice Talent Account"
+                    )}
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { supabase } from "@/lib/supabase"
-import { createHash } from "crypto"
+import bcrypt from "bcryptjs"
 
 export async function POST(request: NextRequest) {
   try {
@@ -42,8 +42,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "An account with this email already exists" }, { status: 409 })
     }
 
-    // Hash password (in production, use bcrypt or similar)
-    const hashedPassword = createHash("sha256").update(password).digest("hex")
+    // Hash password
+    const saltRounds = 12
+    const passwordHash = await bcrypt.hash(password, saltRounds)
 
     // Insert user into database
     const { data: newUser, error: insertError } = await supabase
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
         account_type: accountType,
         agree_to_terms: agreeToTerms,
         agree_to_marketing: agreeToMarketing || false,
+        password_hash: passwordHash,
       })
       .select()
       .single()
