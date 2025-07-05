@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js"
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
@@ -17,6 +17,7 @@ export type Database = {
           account_type: "regular" | "voice_talent"
           agreed_to_terms: boolean
           agreed_to_marketing: boolean
+          blob_id?: string
           created_at: string
           updated_at: string
         }
@@ -28,6 +29,7 @@ export type Database = {
           account_type: "regular" | "voice_talent"
           agreed_to_terms: boolean
           agreed_to_marketing: boolean
+          blob_id?: string
           created_at?: string
           updated_at?: string
         }
@@ -39,6 +41,7 @@ export type Database = {
           account_type?: "regular" | "voice_talent"
           agreed_to_terms?: boolean
           agreed_to_marketing?: boolean
+          blob_id?: string
           created_at?: string
           updated_at?: string
         }

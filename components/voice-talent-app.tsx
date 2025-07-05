@@ -11,12 +11,15 @@ import { Card } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { ArrowLeft, Upload, Mic, Play, Pause, Check, AlertCircle, FileAudio, Clock, DollarSign } from "lucide-react"
 import { motion } from "framer-motion"
+import { usePrivy } from '@privy-io/react-auth'
+import { supabase } from '@/lib/supabase'
 
 interface VoiceTalentAppProps {
   onBack: () => void
 }
 
 export default function VoiceTalentApp({ onBack }: VoiceTalentAppProps) {
+  const { user } = usePrivy()
   const [step, setStep] = useState(1)
   const [isRecording, setIsRecording] = useState(false)
   const [hasRecording, setHasRecording] = useState(false)
@@ -32,6 +35,9 @@ export default function VoiceTalentApp({ onBack }: VoiceTalentAppProps) {
     voiceType: "",
     languages: "",
   })
+  const [apiResponse, setApiResponse] = useState<any>(null)
+  const [apiError, setApiError] = useState<string | null>(null)
+  const [dbError, setDbError] = useState<string | null>(null)
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
@@ -93,10 +99,65 @@ export default function VoiceTalentApp({ onBack }: VoiceTalentAppProps) {
 
   const handleSubmit = async () => {
     setIsUploading(true)
-    // Simulate form submission
-    await new Promise((resolve) => setTimeout(resolve, 2000))
-    setIsUploading(false)
-    setStep(4) // Success step
+    setApiError(null)
+    setDbError(null)
+    
+    try {
+      // Make the HTTP API call to the publisher endpoint
+      const response = await fetch("https://publisher.walrus-testnet.walrus.space/v1/blobs", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify("alloy"),
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      const responseData = await response.json()
+      setApiResponse(responseData)
+      
+      // Extract blob ID from the response
+      const blobId = responseData?.newlyCreated?.blobObject?.blobId
+      
+      if (blobId && user?.id) {
+        try {
+          // Save blob ID to Supabase database
+          const { error: dbError } = await supabase
+            .from('users')
+            .update({ 
+              blob_id: blobId,
+              account_type: 'voice_talent',
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', user.id)
+
+          if (dbError) {
+            console.error("Database error:", dbError)
+            setDbError(dbError.message)
+          }
+        } catch (dbError) {
+          console.error("Database error:", dbError)
+          setDbError("Failed to save blob ID to database")
+        }
+      } else if (!blobId) {
+        console.warn("No blob ID found in API response")
+      } else if (!user?.id) {
+        console.warn("No user ID available")
+        setDbError("User not authenticated")
+      }
+      
+      // Continue with the success flow
+      setStep(4) // Success step
+    } catch (error) {
+      console.error("API call failed:", error)
+      setApiError(error instanceof Error ? error.message : "An error occurred")
+      // You might want to show an error message to the user here
+    } finally {
+      setIsUploading(false)
+    }
   }
 
   const renderStepContent = () => {
@@ -459,6 +520,38 @@ export default function VoiceTalentApp({ onBack }: VoiceTalentAppProps) {
                 <p>4. Start earning from your voice immediately after approval</p>
               </div>
             </Card>
+
+            {/* API Response Display */}
+            {apiResponse && (
+              <Card className="p-6 bg-green-50 border-green-200 text-left max-w-2xl mx-auto">
+                <h3 className="font-semibold text-gray-900 mb-3">API Response</h3>
+                <div className="bg-white p-4 rounded border">
+                  <pre className="text-sm text-gray-700 overflow-x-auto">
+                    {JSON.stringify(apiResponse, null, 2)}
+                  </pre>
+                </div>
+              </Card>
+            )}
+
+            {/* Error Display */}
+            {apiError && (
+              <Card className="p-6 bg-red-50 border-red-200 text-left max-w-2xl mx-auto">
+                <h3 className="font-semibold text-red-900 mb-3">API Error</h3>
+                <p className="text-sm text-red-700">{apiError}</p>
+              </Card>
+            )}
+
+            {/* Database Error Display */}
+            {dbError && (
+              <Card className="p-6 bg-orange-50 border-orange-200 text-left max-w-2xl mx-auto">
+                <h3 className="font-semibold text-orange-900 mb-3">Database Warning</h3>
+                <p className="text-sm text-orange-700">{dbError}</p>
+                <p className="text-xs text-orange-600 mt-2">
+                  Your application was submitted successfully, but there was an issue saving to our database. 
+                  Please contact support if this persists.
+                </p>
+              </Card>
+            )}
 
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button onClick={onBack} variant="outline">
