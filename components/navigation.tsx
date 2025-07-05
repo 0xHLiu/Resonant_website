@@ -44,7 +44,7 @@ export default function Navigation() {
               Sign In
             </Button>
             <Button className="bg-blue-600 hover:bg-blue-700 text-white rounded-full px-6" asChild>
-              <Link href="/signup">Get Started</Link>
+              <Link href="/app">Get Started</Link>
             </Button>
           </div>
 

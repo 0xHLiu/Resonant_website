@@ -76,7 +76,7 @@ export default function HeroSection() {
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold rounded-full shadow-sm hover:shadow-md transition-all duration-300"
             asChild
           >
-            <Link href="/signup">Start creating for free</Link>
+            <Link href="/app">Start creating for free</Link>
           </Button>
           <Button
             variant="outline"
