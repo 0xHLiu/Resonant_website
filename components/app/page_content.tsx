@@ -3,15 +3,85 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { ArrowLeft, Mic, Volume2 } from "lucide-react"
+import { ArrowLeft, Mic, Volume2, LogOut, User } from "lucide-react"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import SpeechGenerationApp from "@/components/speech-generation-app"
 import VoiceTalentApp from "@/components/voice-talent-app"
+import {usePrivy} from '@privy-io/react-auth'
 
 export default function AppPage() {
+  const {ready, authenticated, user, login, logout} = usePrivy();
   const [userType, setUserType] = useState<"speech-generation" | "voice-talent" | null>(null)
 
+  if (!ready) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is not authenticated, show login screen
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="max-w-md w-full mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            className="text-center"
+          >
+            <div className="mb-8">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center mx-auto mb-4">
+                <span className="text-white font-bold text-2xl">R</span>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Resonant</h1>
+              <p className="text-gray-600">Sign in to access your AI voice platform</p>
+            </div>
+
+            <Card className="p-8">
+              <div className="space-y-6">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-2">Get Started</h2>
+                  <p className="text-gray-600 text-sm">
+                    Create an account or sign in to access speech generation and voice talent features
+                  </p>
+                </div>
+
+                <Button
+                  onClick={login}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-full py-3 font-semibold"
+                >
+                  <User className="w-5 h-5 mr-2" />
+                  Sign In / Create Account
+                </Button>
+
+                <div className="text-center">
+                  <p className="text-gray-500 text-sm">
+                    By signing in, you agree to our{" "}
+                    <Link href="/terms" className="text-blue-600 hover:text-blue-700">
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link href="/privacy" className="text-blue-600 hover:text-blue-700">
+                      Privacy Policy
+                    </Link>
+                  </p>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // User is authenticated, show the main app content
   if (userType === "speech-generation") {
     return <SpeechGenerationApp onBack={() => setUserType(null)} />
   }
@@ -41,6 +111,23 @@ export default function AppPage() {
                 </div>
                 <span className="text-gray-900 font-semibold text-xl">Resonant</span>
               </div>
+            </div>
+
+            {/* User info and logout */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <User className="w-4 h-4" />
+                <span>{user?.email?.address || user?.wallet?.address || 'User'}</span>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={logout}
+                className="flex items-center gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign Out
+              </Button>
             </div>
           </div>
         </div>
